@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket {{ ticket.ticket_id }} — Mumbai Local</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--surface:#13161e;--card:#1a1e2a;--border:#252a38;--accent:#f97316;--accent2:#fbbf24;--blue:#3b82f6;--green:#22c55e;--text:#e8eaf0;--muted:#6b7280;--mono:'IBM Plex Mono',monospace;--sans:'Noto Sans',sans-serif;--display:'Syne',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:24px}
+.ticket-wrap{width:420px;max-width:100%}
+.ticket-card{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.tc-top{
+  background:linear-gradient(135deg,#0d2340,#1a3a5c);
+  padding:24px;text-align:center;border-bottom:1px dashed var(--border);
+  position:relative;
+}
+.tc-top::before{content:'🚆';font-size:2rem;display:block;margin-bottom:8px}
+.tc-top h2{font-family:var(--display);font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+.tc-id{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:4px}
+.tc-status{
+  position:absolute;top:16px;right:16px;
+  background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);
+  color:var(--green);padding:3px 10px;border-radius:10px;font-size:.7rem;font-family:var(--mono);
+}
+.tc-route{
+  padding:20px 24px;border-bottom:1px dashed var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.stn{flex:1;text-align:center}
+.stn-name{font-family:var(--display);font-size:1.05rem;font-weight:700}
+.stn-line{font-size:.7rem;color:var(--muted);font-family:var(--mono);margin-top:3px}
+.arrow-box{flex-shrink:0;background:var(--surface);border:1px solid var(--border);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:1rem}
+.tc-details{padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:12px;border-bottom:1px dashed var(--border)}
+.detail{background:var(--surface);border-radius:8px;padding:10px 14px}
+.dl{font-size:.68rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.dv{font-size:.9rem;font-weight:500}
+.dv.big{font-family:var(--display);font-size:1.4rem;font-weight:800;color:var(--accent2)}
+.tc-qr{padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;border-bottom:1px dashed var(--border)}
+.tc-qr img{width:140px;height:140px;border-radius:10px;border:2px solid var(--border)}
+.qr-label{font-size:.72rem;font-family:var(--mono);color:var(--muted)}
+.tc-footer{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:var(--mono);color:var(--muted)}
+.nearest-chip{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:var(--blue);padding:3px 10px;border-radius:10px}
+.back-btn{display:block;text-align:center;margin-top:16px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:10px;text-decoration:none;font-family:var(--mono);font-size:.82rem;transition:.2s}
+.back-btn:hover{background:var(--card)}
+.print-btn{display:block;text-align:center;margin-top:8px;background:var(--accent);border:none;color:#fff;padding:10px;border-radius:10px;text-decoration:none;font-family:var(--display);font-size:.9rem;font-weight:700;cursor:pointer;transition:.2s}
+.print-btn:hover{background:#ea6c0a}
+</style>
+</head>
+<body>
+<div class="ticket-wrap">
+  <div class="ticket-card">
+    <div class="tc-top">
+      <h2>Mumbai Local Railway</h2>
+      <div class="tc-id">{{ ticket.ticket_id }}</div>
+      <span class="tc-status">✓ VALID</span>
+    </div>
+
+    <div class="tc-route">
+      <div class="stn">
+        <div class="stn-name">{{ ticket.from_name }}</div>
+        <div class="stn-line">{{ ticket.from_line }} Line</div>
+      </div>
+      <div class="arrow-box">→</div>
+      <div class="stn">
+        <div class="stn-name">{{ ticket.to_name }}</div>
+        <div class="stn-line">{{ ticket.to_line }} Line</div>
+      </div>
+    </div>
+
+    <div class="tc-details">
+      <div class="detail"><div class="dl">Fare</div><div class="dv big">₹{{ ticket.fare }}</div></div>
+      <div class="detail"><div class="dl">Class</div><div class="dv">2nd Class</div></div>
+      <div class="detail"><div class="dl">Distance</div><div class="dv">~{{ ticket.distance_km }} km</div></div>
+      <div class="detail"><div class="dl">Device</div><div class="dv" style="font-size:.72rem">{{ ticket.device_id }}</div></div>
+      <div class="detail" style="grid-column:span 2"><div class="dl">Booked At</div><div class="dv" style="font-size:.82rem">{{ ticket.booked_at }}</div></div>
+    </div>
+
+    {% if ticket.qr_b64 %}
+    <div class="tc-qr">
+      <img src="data:image/png;base64,{{ ticket.qr_b64 }}" alt="QR Code">
+      <span class="qr-label">Scan to verify this ticket</span>
+    </div>
+    {% endif %}
+
+    <div class="tc-footer">
+      <span>{{ ticket.booked_at.split(',')[0] }}</span>
+      <span class="nearest-chip">📍 {{ ticket.nearest_stn or 'N/A' }}</span>
+    </div>
+  </div>
+
+  <button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+  <a href="/" class="back-btn">← Book Another Ticket</a>
+</div>
+</body>
+</html>

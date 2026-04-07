@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mumbai Local — Smart Ticket System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0d0f14;
+  --surface:   #13161e;
+  --card:      #1a1e2a;
+  --border:    #252a38;
+  --accent:    #f97316;
+  --accent2:   #fbbf24;
+  --blue:      #3b82f6;
+  --green:     #22c55e;
+  --red:       #ef4444;
+  --text:      #e8eaf0;
+  --muted:     #6b7280;
+  --mono:      'IBM Plex Mono', monospace;
+  --sans:      'Noto Sans', sans-serif;
+  --display:   'Syne', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
+
+/* HEADER */
+header{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:60px;position:sticky;top:0;z-index:100;
+}
+.logo{font-family:var(--display);font-weight:800;font-size:1.2rem;letter-spacing:-.5px}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:8px}
+.nav-links a{
+  color:var(--muted);font-size:.82rem;text-decoration:none;
+  padding:6px 14px;border-radius:6px;transition:.2s;font-family:var(--mono);
+}
+.nav-links a:hover{background:var(--card);color:var(--text)}
+
+/* HERO STRIP */
+.hero{
+  background:linear-gradient(135deg,#0d1520 0%,#111827 50%,#0d1520 100%);
+  border-bottom:1px solid var(--border);
+  padding:32px 24px 28px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(249,115,22,.12),transparent);
+  pointer-events:none;
+}
+.hero h1{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.8rem);font-weight:800;line-height:1.1}
+.hero h1 span{color:var(--accent)}
+.hero p{color:var(--muted);margin-top:8px;font-size:.92rem}
+.badge-row{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.badge{
+  background:var(--card);border:1px solid var(--border);
+  padding:4px 12px;border-radius:20px;font-size:.75rem;font-family:var(--mono);color:var(--muted);
+}
+.badge.live{border-color:var(--green);color:var(--green)}
+
+/* LOCATION BAR */
+.loc-bar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 24px;display:flex;align-items:center;gap:12px;font-size:.82rem;
+}
+#loc-status{color:var(--muted);font-family:var(--mono)}
+#loc-nearest{color:var(--accent2);font-weight:600}
+.loc-btn{
+  margin-left:auto;background:var(--card);border:1px solid var(--border);
+  color:var(--text);padding:5px 14px;border-radius:6px;cursor:pointer;font-size:.78rem;
+  font-family:var(--mono);transition:.2s;
+}
+.loc-btn:hover{background:var(--border)}
+
+/* MAIN LAYOUT */
+.main{max-width:1100px;margin:0 auto;padding:32px 16px;display:grid;grid-template-columns:1fr 420px;gap:24px}
+@media(max-width:800px){.main{grid-template-columns:1fr}}
+
+/* BOOKING CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px}
+.card-title{
+  font-family:var(--display);font-size:1.05rem;font-weight:700;margin-bottom:20px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block}
+
+label{display:block;font-size:.78rem;color:var(--muted);font-family:var(--mono);margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+select,input{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  color:var(--text);padding:11px 14px;border-radius:8px;font-size:.9rem;
+  font-family:var(--sans);outline:none;transition:.2s;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+}
+select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+select option{background:var(--surface)}
+
+.field{margin-bottom:18px}
+
+.swap-row{display:flex;justify-content:center;margin:4px 0 12px}
+.swap-btn{
+  background:var(--surface);border:1px solid var(--border);width:36px;height:36px;
+  border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--accent);font-size:1rem;transition:.2s;
+}
+.swap-btn:hover{background:var(--card);transform:rotate(180deg)}
+
+.fare-preview{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:14px 18px;margin:18px 0;display:flex;justify-content:space-between;align-items:center;
+}
+.fare-label{font-size:.78rem;color:var(--muted);font-family:var(--mono)}
+.fare-value{font-family:var(--display);font-size:1.5rem;font-weight:800;color:var(--accent2)}
+.fare-dist{font-size:.75rem;color:var(--muted);font-family:var(--mono)}
+
+.book-btn{
+  width:100%;background:var(--accent);border:none;color:#fff;
+  padding:14px;border-radius:10px;font-family:var(--display);font-size:1rem;font-weight:700;
+  cursor:pointer;transition:.2s;letter-spacing:.03em;
+}
+.book-btn:hover{background:#ea6c0a;transform:translateY(-1px);box-shadow:0 8px 24px rgba(249,115,22,.3)}
+.book-btn:active{transform:translateY(0)}
+.book-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none;box-shadow:none}
+
+/* LINE FILTER */
+.line-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.line-tab{
+  background:var(--surface);border:1px solid var(--border);
+  padding:5px 14px;border-radius:20px;font-size:.75rem;font-family:var(--mono);
+  cursor:pointer;transition:.2s;color:var(--muted);
+}
+.line-tab:hover,.line-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* TICKET PANEL */
+.ticket-panel{display:flex;flex-direction:column;gap:16px}
+.panel-title{font-family:var(--display);font-size:1rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.panel-title .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block}
+
+.ticket{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;
+  animation:slideIn .35s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.ticket-header{
+  background:linear-gradient(135deg,#1e3a5f,#1a2a4a);
+  padding:18px 20px 14px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.ticket-id{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.ticket-badge{
+  background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);
+  color:var(--green);font-size:.7rem;font-family:var(--mono);padding:2px 8px;border-radius:10px;
+}
+.ticket-route{font-family:var(--display);font-size:1.1rem;font-weight:700;margin-top:6px}
+.ticket-route .arrow{color:var(--accent);margin:0 8px}
+
+.ticket-body{padding:16px 20px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start}
+.ticket-info{display:grid;gap:8px}
+.info-row{display:flex;justify-content:space-between;font-size:.8rem}
+.info-key{color:var(--muted);font-family:var(--mono);text-transform:uppercase;font-size:.7rem}
+.info-val{color:var(--text);font-weight:500;text-align:right}
+.fare-big{font-family:var(--display);font-size:1.8rem;font-weight:800;color:var(--accent2)}
+.fare-big small{font-size:.75rem;font-family:var(--mono);color:var(--muted);display:block;text-align:right}
+
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.qr-wrap img{width:90px;height:90px;border-radius:8px;border:2px solid var(--border)}
+.qr-label{font-size:.65rem;font-family:var(--mono);color:var(--muted)}
+
+.ticket-footer{
+  border-top:1px dashed var(--border);padding:10px 20px;
+  display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:var(--mono);color:var(--muted);
+}
+.nearest-badge{
+  background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);
+  color:var(--blue);padding:2px 8px;border-radius:10px;
+}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 0;color:var(--muted)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:.85rem;font-family:var(--mono)}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:var(--green);color:#fff;padding:12px 20px;border-radius:10px;
+  font-family:var(--mono);font-size:.85rem;font-weight:600;
+  transform:translateY(80px);opacity:0;transition:.3s;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{background:var(--red)}
+
+/* LOADER */
+.loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🚆 Mumbai <span>Local</span></div>
+  <nav class="nav-links">
+    <a href="/">Book Ticket</a>
+    <a href="/admin">Admin</a>
+  </nav>
+</header>
+
+<div class="loc-bar">
+  <span>📍</span>
+  <span id="loc-status">Detecting your location…</span>
+  <span id="loc-nearest"></span>
+  <button class="loc-btn" onclick="detectLocation()">↻ Refresh</button>
+</div>
+
+<div class="hero">
+  <h1>Mumbai Local <span>Railway</span></h1>
+  <p>Smart offline ticket booking · Western · Central · Harbour lines</p>
+  <div class="badge-row">
+    <span class="badge live">● LIVE</span>
+    <span class="badge">~150 Stations</span>
+    <span class="badge">Free · Offline</span>
+    <span class="badge">QR Tickets</span>
+    <span class="badge">Realistic Fares</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- BOOKING FORM -->
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Book Your Ticket</div>
+
+    <div class="line-tabs">
+      <div class="line-tab active" onclick="filterLine('All',this)">All Lines</div>
+      <div class="line-tab" onclick="filterLine('Western',this)">🟠 Western</div>
+      <div class="line-tab" onclick="filterLine('Central',this)">🔵 Central</div>
+      <div class="line-tab" onclick="filterLine('Harbour',this)">🟢 Harbour</div>
+    </div>
+
+    <div class="field">
+      <label>From Station</label>
+      <select id="from-select" onchange="updateFare()">
+        <option value="">— Select Departure Station —</option>
+      </select>
+    </div>
+
+    <div class="swap-row">
+      <button class="swap-btn" title="Swap stations" onclick="swapStations()">⇅</button>
+    </div>
+
+    <div class="field">
+      <label>To Station</label>
+      <select id="to-select" onchange="updateFare()">
+        <option value="">— Select Destination Station —</option>
+      </select>
+    </div>
+
+    <div class="fare-preview" id="fare-preview" style="display:none">
+      <div>
+        <div class="fare-label">Estimated Fare (2nd Class)</div>
+        <div class="fare-dist" id="fare-dist-label"></div>
+      </div>
+      <div class="fare-value" id="fare-amount">₹ --</div>
+    </div>
+
+    <button class="book-btn" id="book-btn" onclick="bookTicket()">
+      🎫 &nbsp;Book Ticket
+    </button>
+  </div>
+
+  <!-- TICKET PANEL -->
+  <div class="ticket-panel">
+    <div>
+      <div class="panel-title"><span class="dot"></span>Your Tickets</div>
+      <div style="font-size:.75rem;color:var(--muted);font-family:var(--mono)">Booked this session</div>
+    </div>
+    <div id="ticket-list">
+      <div class="empty-state">
+        <div class="icon">🎫</div>
+        <p>No tickets booked yet.<br>Select stations and book above.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── data ──────────────────────────────────────────────────────────────────────
+const ALL_STATIONS = {{ stations_json|safe }};
+let currentLine  = "All";
+let nearestStn   = null;
+let nearestDist  = 0;
+let sessionId    = localStorage.getItem("session_id") || crypto.randomUUID();
+let deviceId     = localStorage.getItem("device_id")  || ("WEB-" + Math.random().toString(36).substr(2,8).toUpperCase());
+localStorage.setItem("session_id", sessionId);
+localStorage.setItem("device_id",  deviceId);
+
+let sessionTickets = [];
+
+// ── station population ────────────────────────────────────────────────────────
+function filteredStations(){
+  if(currentLine === "All") return ALL_STATIONS;
+  return ALL_STATIONS.filter(s=>s.line===currentLine);
+}
+
+function populateSelects(){
+  const stations = filteredStations();
+  const fromSel  = document.getElementById("from-select");
+  const toSel    = document.getElementById("to-select");
+  const fromVal  = fromSel.value;
+  const toVal    = toSel.value;
+
+  [fromSel, toSel].forEach(sel=>{
+    sel.innerHTML = '<option value="">— Select Station —</option>';
+    let currentLineName = "";
+    stations.forEach(s=>{
+      if(s.line !== currentLineName){
+        const og = document.createElement("optgroup");
+        og.label = `── ${s.line} Line ──`;
+        sel.appendChild(og);
+        currentLineName = s.line;
+      }
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.name;
+      sel.appendChild(opt);
+    });
+  });
+
+  if(fromVal) fromSel.value = fromVal;
+  if(toVal)   toSel.value   = toVal;
+  updateFare();
+}
+
+function filterLine(line, el){
+  currentLine = line;
+  document.querySelectorAll(".line-tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  populateSelects();
+}
+
+populateSelects();
+
+// ── fare preview ──────────────────────────────────────────────────────────────
+async function updateFare(){
+  const f = document.getElementById("from-select").value;
+  const t = document.getElementById("to-select").value;
+  const box = document.getElementById("fare-preview");
+  if(!f || !t || f===t){box.style.display="none";return;}
+  const res  = await fetch(`/api/fare?from=${f}&to=${t}`);
+  const data = await res.json();
+  if(data.error){box.style.display="none";return;}
+  document.getElementById("fare-amount").textContent = `₹ ${data.fare}`;
+  document.getElementById("fare-dist-label").textContent = `~${data.distance_km} km`;
+  box.style.display="flex";
+}
+
+// ── swap ──────────────────────────────────────────────────────────────────────
+function swapStations(){
+  const f = document.getElementById("from-select");
+  const t = document.getElementById("to-select");
+  [f.value, t.value] = [t.value, f.value];
+  updateFare();
+}
+
+// ── geolocation ───────────────────────────────────────────────────────────────
+function detectLocation(){
+  document.getElementById("loc-status").textContent = "Detecting…";
+  document.getElementById("loc-nearest").textContent = "";
+  if(!navigator.geolocation){
+    document.getElementById("loc-status").textContent = "Geolocation not supported";
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const {latitude:lat, longitude:lon} = pos.coords;
+    const res  = await fetch(`/api/nearest?lat=${lat}&lon=${lon}`);
+    const data = await res.json();
+    if(data.station){
+      nearestStn  = data.station.name;
+      nearestDist = data.distance_km;
+      document.getElementById("loc-status").textContent = "Your nearest station:";
+      document.getElementById("loc-nearest").textContent =
+        `📍 ${nearestStn} (${nearestDist} km away)`;
+    }
+  }, err=>{
+    document.getElementById("loc-status").textContent = "Location permission denied";
+  });
+}
+detectLocation();
+
+// ── book ticket ───────────────────────────────────────────────────────────────
+async function bookTicket(){
+  const fromId = document.getElementById("from-select").value;
+  const toId   = document.getElementById("to-select").value;
+  if(!fromId || !toId){showToast("Please select both stations","error");return;}
+  if(fromId===toId){showToast("Source and destination can't be the same","error");return;}
+
+  const btn = document.getElementById("book-btn");
+  btn.disabled=true;
+  btn.innerHTML='<span class="loader"></span>Booking…';
+
+  const res = await fetch("/api/book",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      from_id:       fromId,
+      to_id:         toId,
+      nearest_station: nearestStn || "Unknown",
+      nearest_dist:  nearestDist,
+      session_id:    sessionId,
+      device_id:     deviceId,
+    })
+  });
+  const data = await res.json();
+  btn.disabled=false;
+  btn.innerHTML='🎫 &nbsp;Book Ticket';
+
+  if(data.success){
+    sessionTickets.unshift(data);
+    renderTickets();
+    showToast(`Ticket booked! ₹${data.fare} · ${data.ticket_id}`);
+  } else {
+    showToast(data.error||"Booking failed","error");
+  }
+}
+
+// ── render tickets ────────────────────────────────────────────────────────────
+function renderTickets(){
+  const list = document.getElementById("ticket-list");
+  if(!sessionTickets.length){
+    list.innerHTML=`<div class="empty-state"><div class="icon">🎫</div><p>No tickets booked yet.<br>Select stations and book above.</p></div>`;
+    return;
+  }
+  list.innerHTML = sessionTickets.map(t => `
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div class="ticket-id">${t.ticket_id}</div>
+          <div class="ticket-route">${t.from}<span class="arrow">→</span>${t.to}</div>
+        </div>
+        <div class="ticket-badge">✓ VALID</div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-info">
+          <div class="info-row"><span class="info-key">Line</span><span class="info-val">${t.from_line}</span></div>
+          <div class="info-row"><span class="info-key">Distance</span><span class="info-val">~${t.distance_km} km</span></div>
+          <div class="info-row"><span class="info-key">Class</span><span class="info-val">2nd Class</span></div>
+          <div class="info-row"><span class="info-key">Booked</span><span class="info-val" style="font-size:.72rem">${t.booked_at}</span></div>
+          <div class="info-row"><span class="info-key">Device</span><span class="info-val" style="font-size:.7rem">${t.device_id}</span></div>
+          <br>
+          <div class="fare-big">₹${t.fare}<small>FARE (2nd Class)</small></div>
+        </div>
+        ${t.qr_b64 ? `
+        <div class="qr-wrap">
+          <img src="data:image/png;base64,${t.qr_b64}" alt="QR">
+          <span class="qr-label">Scan QR</span>
+        </div>` : ''}
+      </div>
+      <div class="ticket-footer">
+        <span>${t.booked_at.split(',')[0]}</span>
+        <span class="nearest-badge">📍 ${t.nearest_stn || 'Unknown'}</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ── toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg, type="success"){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className   = "toast " + (type==="error"?"error":"") + " show";
+  setTimeout(()=>t.classList.remove("show"), 3500);
+}
+</script>
+</body>
+</html>
